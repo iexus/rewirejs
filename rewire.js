@@ -5,12 +5,12 @@ define(function() {
     };
 
     re.prototype.wire = function() {
-
+        
     };
 
     re.prototype.store = function() {
 
     };
 
-    return re;
+    return new re();
 });
