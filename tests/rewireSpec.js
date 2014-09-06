@@ -91,21 +91,34 @@ function(re, RedCable, BlueCable) {
             });
 
             it ("will define the mock using the unique id", function() {
-                spyOn(window, "define");
+                spyOn(re, "genID").and.callFake(function() {
+                    return uniqueId;
+                });
 
-                re.wire(blueCablePath, redCablePath, {aMock: "mock"});
-                expect(window.define).toHaveBeenCalled();
+                spyOn(window, "define");
+                var mock = { something: "something" };
+
+                re.wire(blueCablePath, redCablePath, mock);
+                expect(window.define).toHaveBeenCalledWith(uniqueId, mock);
             });
         });
-        
 
-        
+        describe ("loading a module with the new mock dependency", function() {
+            it ("will load the mock as a dependency on the module", function(done) {
+                var mockString = "mock something!";
+                var mockRedCable = {
+                    doSomething: function() {
+                        return mockString;
+                    }
+                };
+
+                re.wire(blueCablePath, redCablePath, mockRedCable);
+                require([blueCablePath], function(BlueCable) {
+                    var blue = new BlueCable();
+                    expect(blue.useRedToDoSomething()).toEqual(mockString);
+                    done();
+                });
+            });
+        });
     });
-
-
-
-
-
-
-
 });
