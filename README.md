@@ -32,7 +32,7 @@ re.wire('path/to/module', 'path/to/dependency/used', mockDependecy);
 After you have replaced the dependency you have to RE-require that module in order to force it to load, this is an asynchronous call so in your jasmine test you need to use the done(); argument:
 
 ```javascript
-require('[path/to/module'], function(ModuleName) {
+require(['path/to/module'], function(ModuleName) {
    //test here
 
    //Tidy up here or outside test
