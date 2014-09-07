@@ -3,6 +3,9 @@ define(['rewire',
         'tests/mocks/BlueCable'], 
 function(re, RedCable, BlueCable) {
 
+    var redCablePath = "tests/mocks/RedCable";
+    var blueCablePath = "tests/mocks/BlueCable";
+
     describe ("Loading rewire via requirejs", function() {
         it ("will be defined", function() {
             expect(re).toBeDefined();
@@ -18,9 +21,6 @@ function(re, RedCable, BlueCable) {
     });
 
     describe ("rewiring a dependency", function() {
-        var redCablePath = "tests/mocks/RedCable";
-        var blueCablePath = "tests/mocks/BlueCable";
-
         describe ("validation", function() {
             it ("will throw an error if you do not specify a dependency to replace", function() {
                 expect(function(){
@@ -45,11 +45,17 @@ function(re, RedCable, BlueCable) {
                     re.wire("aPath", {something: "something"});
                 }).toThrow();
             });
+
+            it ("will throw an error if you do not give it an object to use as a mock", function() {
+                expect(function(){
+                    re.wire("something", "anotherSomething");
+                }).toThrow();
+            });
         });
 
         it ("will undefine an already defined dependency", function() {
             spyOn(require, "undef");
-            re.wire(blueCablePath, "otherPath");
+            re.wire(blueCablePath, "otherPath", {});
             expect(require.undef).toHaveBeenCalledWith(blueCablePath);
         });
 
@@ -121,4 +127,73 @@ function(re, RedCable, BlueCable) {
             });
         });
     });
+
+    describe ("restoring a dependency we have mocked", function() {
+
+        describe ("validation", function() {
+            it ("will error if you do not give a dependency path", function(){
+                expect(function() {
+                    re.store();
+                }).toThrow();
+            });
+
+            it ("will throw an error if you do not use a string for path", function() {
+                expect(function() {
+                    re.store({});
+                }).toThrow();
+            });
+        });
+
+        it ("will undefine the dependency to force it to be reloaded", function() {
+            spyOn(require, "undef");
+            re.store(blueCablePath);
+            expect(require.undef).toHaveBeenCalledWith(blueCablePath);
+        });
+
+        it ("will set the mapping for the mocked dependency back to normal", function() {
+            re.wire(blueCablePath, redCablePath, {});
+
+            spyOn(require, "config");
+            re.store(blueCablePath);
+
+            var callArgs = require.config.calls.argsFor(0);
+            var map = callArgs[0].map;
+            expect(map['*']).toBeDefined();
+
+            var mapping = map['*'];
+            expect(mapping[redCablePath]).toEqual(redCablePath);
+        });
+
+        it ("will not do anything if we have already restored a dependency", function(){
+            re.wire(blueCablePath, redCablePath, {});
+            re.store(blueCablePath);
+
+            spyOn(require, "config");
+            re.store(blueCablePath);
+
+            expect(require.config).not.toHaveBeenCalled();
+        });
+
+        it ("will undefine the mock", function() {
+            var uniqueId = "An ID for a mock";
+            spyOn(re, "genID").and.callFake(function() {
+                return uniqueId;
+            });
+
+            re.wire(blueCablePath, redCablePath, {});
+
+            spyOn(require, "undef");
+            re.store(blueCablePath);
+
+            expect(require.undef).toHaveBeenCalledWith(blueCablePath);
+            expect(require.undef).toHaveBeenCalledWith(uniqueId);
+        });
+    });
 });
+
+
+
+
+
+
+
