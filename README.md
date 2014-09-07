@@ -67,7 +67,7 @@ function(Laces){
         };
     }
 
-    return Socks();
+    return Shoes();
 });
 
 ```
