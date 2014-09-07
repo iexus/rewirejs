@@ -25,8 +25,8 @@ var mockDependecy = {
     aMethodOnDependency: function(){}
 };
 
-spyOn(mock, "aMethodOnDependency");
-re.wire('path/to/module', 'path/to/dependency/used', mock);
+spyOn(mockDependecy, "aMethodOnDependency");
+re.wire('path/to/module', 'path/to/dependency/used', mockDependecy);
 ```
 
 After you have replaced the dependency you have to RE-require that module in order to force it to load, this is an asynchronous call so in your jasmine test you need to use the done(); argument:
