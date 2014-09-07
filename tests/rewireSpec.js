@@ -125,6 +125,24 @@ function(re, RedCable, BlueCable) {
                     done();
                 });
             });
+
+            it ("will allow us to spy on the mock too", function (){
+                var mockRedCable = {
+                    doSomething: function() {
+                        return mockString;
+                    }
+                };
+
+                re.wire(blueCablePath, redCablePath, mockRedCable);
+                require([blueCablePath], function(BlueCable) {
+                    spyOn(mockRedCable, "doSomething");
+
+                    var blue = new BlueCable();
+                    blue.useRedToDoSomething();
+                    expect(mockRedCable.doSomething).toHaveBeenCalled();
+                    done();
+                });
+            });
         });
     });
 
