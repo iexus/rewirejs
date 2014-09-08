@@ -1,9 +1,7 @@
-# rewirejs - re.wire and re.store your mock dependencies in requirejs!
+# rewirejs - re.wire and re.store to inject your mock dependencies into a module using requirejs!
 
-Mocking dependencies is useful. 
-Requirejs is also useful. 
-
-However when I want to mock a dependency in my tests requirejs has already loaded the real one! At the moment I am using Karma with the requirejs plugin + Jasmine for tests. I have tried using tools like Squirejs or Testr but I wasn't happy with either. 
+Mocking dependencies is useful. So is injecting them into a module or class you would like to test.
+Requirejs is also useful however when I want to mock a dependency in my tests requirejs has already loaded the real one! At the moment I am using Karma with the requirejs plugin + Jasmine for tests. I have tried using tools like Squirejs or Testr but I wasn't happy with either. 
 
 This is a small file to include in your project that allows you to simply add and remove a mock dependency. 
 
@@ -21,12 +19,12 @@ function(re) {
 In your test you can mock a dependency on another module and hand through a mock object that you can spyOn using Jasmine: 
 
 ```javascript
-var mockDependecy = {
+var mockDependency = {
     aMethodOnDependency: function(){}
 };
 
-spyOn(mockDependecy, "aMethodOnDependency");
-re.wire('path/to/module', 'path/to/dependency/used', mockDependecy);
+spyOn(mockDependency, "aMethodOnDependency");
+re.wire('path/to/module', 'path/to/dependency/used', mockDependency);
 ```
 
 After you have replaced the dependency you have to RE-require that module in order to force it to load, this is an asynchronous call so in your jasmine test you need to use the done(); argument:
