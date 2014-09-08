@@ -3,9 +3,9 @@ define(function() {
     var _saved = {};
     var re = function(){};
 
-    re.prototype.wire = function(dependencyPath, dependencyToMockPath, mockObject) {
-        if (typeof dependencyPath === 'undefined'
-         || typeof dependencyPath !== 'string') {
+    re.prototype.wire = function(modulePath, dependencyToMockPath, mockObject) {
+        if (typeof modulePath === 'undefined'
+         || typeof modulePath !== 'string') {
             throw new Error('Path to dependency was undefined / not a string');
         }
 
@@ -26,13 +26,13 @@ define(function() {
         mockMapping[dependencyToMockPath] = mockName;
 
         //Save the dependency against mock path so we know how to clean up later
-        _saved[dependencyPath] = {
+        _saved[modulePath] = {
             path: dependencyToMockPath,
             name: mockName
         };
 
         //Undefine the existing dependency (forces it to reload using mock)
-        require.undef(dependencyPath);
+        require.undef(modulePath);
         //Map every instance to this mock version
         require.config({
             map: {
@@ -44,17 +44,17 @@ define(function() {
         define(mockName, mockObject);
     };
 
-    re.prototype.store = function(dependencyPath) {
-        if (typeof dependencyPath === 'undefined'
-         || typeof dependencyPath !== 'string') {
+    re.prototype.store = function(modulePath) {
+        if (typeof modulePath === 'undefined'
+         || typeof modulePath !== 'string') {
             throw new Error("You must specify a path to a dependency");
         }
 
         //Undefine the module with the now mocked dependency (force a reload with real objects)
-        require.undef(dependencyPath);
+        require.undef(modulePath);
 
         //Check we actual remember this mock dependency
-        var mockedDependency = _saved[dependencyPath];
+        var mockedDependency = _saved[modulePath];
         if (mockedDependency) {
             //Create a mapping back to the real objects.
             var resetMapping = {};
@@ -69,7 +69,7 @@ define(function() {
             require.undef(mockedDependency.name);
 
             //Tidy up after ourselves.
-            delete _saved[dependencyPath];
+            delete _saved[modulePath];
         }
     };
 
