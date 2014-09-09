@@ -20,6 +20,10 @@ define(function() {
 
         //Get a name for our mock
         var mockName = this.genID();
+        var count = collisionCount(mockName);
+        if (count > 0) {
+            mockName += count.toString();
+        }
 
         //We need to set the path to this generated mock name
         var mockMapping = {};
@@ -73,12 +77,31 @@ define(function() {
         }
     };
 
+    re.prototype.moveAllMocks = function() {
+        for (var mockName in _saved) {
+            this.store(mockName);
+        }
+    };
+
     re.prototype.genID = function() {
         //This is completely ripped from: http://stackoverflow.com/a/2117523
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
             return v.toString(16);
         });
+    };
+
+    //This is REALLY unlikely but hey why not I'm bored.
+    function collisionCount(id) {
+        var count = 0;
+        for (var mock in _saved) {
+            var mockName = _saved[mock].name
+            if (mockName.indexOf(id) !== -1) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     return new re();
