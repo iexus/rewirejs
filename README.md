@@ -47,6 +47,12 @@ To tidy up after yourself you can then just call the following:
 re.store('path/to/module');
 ```
 
+You can also at any point clear all known dependencies:
+
+```javascript
+re.moveAllMocks();
+```
+
 ## Bit of a more detailed example
 
 Take a typical class called Shoes that depends on laces to ensure they don't fall off feet:
