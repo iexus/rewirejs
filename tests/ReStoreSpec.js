@@ -79,13 +79,13 @@ function(re, RedCable, BlueCable) {
 
                 require([blueCablePath], function(BluCable) {
                     var blu = new BluCable();
-                    expect(blu.useRedToDoSomething()).toEqual("Mock string");
+                    expect(blu.useRedCable()).toEqual("Mock string");
 
                     //Now restore and create what should be the original object.
                     re.store(blueCablePath);
                     require([blueCablePath], function(TrueBlue) {
                         var truBlu = new TrueBlue();
-                        expect(truBlu.useRedToDoSomething()).toEqual("I did something");
+                        expect(truBlu.useRedCable()).toEqual("I did something");
                         done();
                     });
                 });

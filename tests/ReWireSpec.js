@@ -6,6 +6,7 @@ function(re, RedCable, BlueCable) {
 
     var redCablePath = "tests/mocks/RedCable";
     var blueCablePath = "tests/mocks/BlueCable";
+    var greenCablePath = "tests/mocks/GreenCable";
 
     describe("rewire spec", function() {
         beforeEach(function() {
@@ -109,7 +110,7 @@ function(re, RedCable, BlueCable) {
                     re.wire(blueCablePath, redCablePath, mockRedCable);
                     require([blueCablePath], function(BlueCable) {
                         var blue = new BlueCable();
-                        expect(blue.useRedToDoSomething()).toEqual(mockString);
+                        expect(blue.useRedCable()).toEqual(mockString);
                         done();
                     });
                 });
@@ -126,8 +127,33 @@ function(re, RedCable, BlueCable) {
                         spyOn(mockRedCable, "doSomething");
 
                         var blue = new BlueCable();
-                        blue.useRedToDoSomething();
+                        blue.useRedCable();
                         expect(mockRedCable.doSomething).toHaveBeenCalled();
+                        done();
+                    });
+                });
+
+                it("will let us mock a whole class rather than just a function", function(done) {
+                    var magicNumber = 42;
+                    //This is a bit odd as you have to mock the whole function rather
+                    //than just a plain object, but it lets you build whatever
+                    //the hell you want inside this object.
+                    var mockGreenClass = function() {
+                        return function() {
+                            return {
+                                calculateSomething: function() {
+                                    return magicNumber;
+                                }
+                            };
+                        };
+                    };
+
+                    re.wire(blueCablePath, greenCablePath, mockGreenClass);
+                    require([blueCablePath], function(BluCable) {
+                        var bluCable = new BluCable();
+                        expect(bluCable.useGreenCable()).toBe(magicNumber);
+
+                        re.store(blueCablePath);
                         done();
                     });
                 });

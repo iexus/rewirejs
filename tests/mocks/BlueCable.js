@@ -1,12 +1,19 @@
-define(['tests/mocks/RedCable'],
-function(RedCable) {
+define(['tests/mocks/RedCable',
+        'tests/mocks/GreenCable'],
+function(RedCable, GreenCable) {
     function BlueCable() {
-        function useRedToDoSomething(){
+        function useRedCable(){
             return RedCable.doSomething();
         }
 
+        function useGreenCable() {
+            var green = new GreenCable();
+            return green.calculateSomething();
+        }
+
         return {
-            useRedToDoSomething: useRedToDoSomething
+            useRedCable: useRedCable,
+            useGreenCable: useGreenCable
         };
     }
 
