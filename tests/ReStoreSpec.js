@@ -71,6 +71,26 @@ function(re, RedCable, BlueCable) {
                 expect(require.undef).toHaveBeenCalledWith(blueCablePath);
                 expect(require.undef).toHaveBeenCalledWith(uniqueId);
             });
+
+            it("will allow us to re-require the original dependency", function(done) {
+                re.wire(blueCablePath, redCablePath, {
+                    doSomething: function(){return "Mock string";}
+                });
+
+                require([blueCablePath], function(BluCable) {
+                    var blu = new BluCable();
+                    expect(blu.useRedToDoSomething()).toEqual("Mock string");
+
+                    //Now restore and create what should be the original object.
+                    re.store(blueCablePath);
+                    require([blueCablePath], function(TrueBlue) {
+                        var truBlu = new TrueBlue();
+                        expect(truBlu.useRedToDoSomething()).toEqual("I did something");
+                        done();
+                    });
+                });
+            });
+
         });
     });
 });
