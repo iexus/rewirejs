@@ -207,7 +207,7 @@ describe ('mocking inner laces as an object / class', function() {
             spyOn(mockLacesInnerMethods, "tie");
 
             var newShoes = new Shoes();
-            newShoes.putOnFeed();
+            newShoes.putOnFeet();
 
             //This should (hopefully) pass
             expect(mockLacesInnerMethods.tie).toHaveBeenCalled();
