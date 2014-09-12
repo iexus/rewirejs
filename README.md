@@ -55,7 +55,7 @@ re.moveAllMocks();
 
 ## Some detailed examples:
 
-# Mocking a simple dependency:
+### Mocking a simple dependency:
 
 Take a typical class called Shoes that depends on laces to ensure they don't fall off feet:
 
@@ -113,7 +113,7 @@ describe ('mocking laces', function() {
 });
 ```
 
-# Mocking a dependency that's a whole class:
+### Mocking a dependency that's a whole class:
 
 This is a bit more complicated as the dependency you are mocking has to return another function. It works like this:
 
