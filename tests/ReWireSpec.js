@@ -157,6 +157,33 @@ function(re, RedCable, BlueCable) {
                         done();
                     });
                 });
+
+                it ("will let you mock a whole class and spy on a method inside", function(done) {
+
+                    var mockGreenInner = {
+                        calculateSomething: function() {
+                            return 23;
+                        }
+                    };
+
+                    var mockGreenClass = function() {
+                        return function() {
+                            return mockGreenInner;
+                        }   
+                    }
+
+                    re.wire(blueCablePath, greenCablePath, mockGreenClass);
+                    require([blueCablePath], function(BluCable) {
+
+                        spyOn(mockGreenInner, "calculateSomething");
+                        var blu = new BluCable();
+                        blu.useGreenCable();
+
+                        expect(mockGreenInner.calculateSomething).toHaveBeenCalled();
+
+                        done();
+                    });
+                });
             });
         });
     });
