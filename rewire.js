@@ -4,26 +4,12 @@ define(function() {
     var re = function(){};
 
     re.prototype.wire = function(modulePath, dependencyToMockPath, mockObject) {
-        if (typeof modulePath === 'undefined'
-         || typeof modulePath !== 'string') {
-            throw new Error('Path to dependency was undefined / not a string');
-        }
-
-        if (typeof dependencyToMockPath === 'undefined'
-         || typeof dependencyToMockPath !== 'string') {
-            throw new Error('Path to dependency to mock was undefined / not a string');
-        }
-
-        if (typeof mockObject === "undefined") {
-            throw new Error('Mock object was undefined');
-        }
+        validateModulePath(modulePath);
+        validateDependencyToMockPath(dependencyToMockPath);
+        validateMockObject(mockObject);
 
         //Get a name for our mock
-        var mockName = this.genID();
-        var count = collisionCount(mockName);
-        if (count > 0) {
-            mockName += count.toString();
-        }
+        var mockName = this.getNameForMock();
 
         //We need to set the path to this generated mock name
         var mockMapping = {};
@@ -38,21 +24,14 @@ define(function() {
         //Undefine the existing dependency (forces it to reload using mock)
         require.undef(modulePath);
         //Map every instance to this mock version
-        require.config({
-            map: {
-                '*' : mockMapping
-            }
-        });
+        setRequireMapping(mockMapping);
 
         //Define the actual mock object so it can be retrieved as a dependency
         define(mockName, mockObject);
     };
 
     re.prototype.store = function(modulePath) {
-        if (typeof modulePath === 'undefined'
-         || typeof modulePath !== 'string') {
-            throw new Error("You must specify a path to a dependency");
-        }
+        validateModulePath(modulePath);
 
         //Undefine the module with the now mocked dependency (force a reload with real objects)
         require.undef(modulePath);
@@ -63,11 +42,7 @@ define(function() {
             //Create a mapping back to the real objects.
             var resetMapping = {};
             resetMapping[mockedDependency.path] = mockedDependency.path;
-            require.config({
-                map: {
-                    '*' : resetMapping
-                }
-            });
+            setRequireMapping(resetMapping);
 
             //Undefine the mock object so it doesn't hang around.
             require.undef(mockedDependency.name);
@@ -83,6 +58,34 @@ define(function() {
         }
     };
 
+    function validateModulePath(modulePath) {
+        if (typeof modulePath === 'undefined'
+         || typeof modulePath !== 'string') {
+            throw new Error('Path to module was undefined / not a string');
+        }
+    }
+
+    function validateDependencyToMockPath(dependencyToMockPath) {
+        if (typeof dependencyToMockPath === 'undefined'
+         || typeof dependencyToMockPath !== 'string') {
+            throw new Error('Path to dependency to mock was undefined / not a string');
+        }
+    }
+
+    function validateMockObject(mockObject) {
+        if (typeof mockObject === "undefined") {
+            throw new Error('Mock object was undefined');
+        }
+    }
+
+    function setRequireMapping(mapping) {
+        require.config({
+            map: {
+                '*' : mapping
+            }
+        });
+    }
+
     re.prototype.genID = function() {
         //This is completely ripped from: http://stackoverflow.com/a/2117523
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -90,6 +93,16 @@ define(function() {
             return v.toString(16);
         });
     };
+
+    re.prototype.getNameForMock = function() {
+        var mockName = this.genID();
+        var count = collisionCount(mockName);
+        if (count > 0) {
+            mockName += count.toString();
+        }
+
+        return mockName;
+    }
 
     //This is REALLY unlikely but hey why not I'm bored.
     function collisionCount(id) {
